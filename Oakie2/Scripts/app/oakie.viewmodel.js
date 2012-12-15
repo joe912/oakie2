@@ -52,7 +52,7 @@ define('oakie.viewmodel',
                 // Check player not already in list
                 for (var i = 0; i < players().length; i++) {
                     if (players()[i].name() === newPlayer) {
-                        alert('Dude! You have already got ' + newPlayer + ' in your team.');
+                        alert('Dude! You have already got ' + newPlayer + ' in your team. Try another player.');
                         return;
                     }
                 }
