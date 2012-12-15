@@ -1,0 +1,110 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Oakie Golf Fantasy League";
+    Layout = "~/Views/Home/_Team2.cshtml";
+}
+
+
+<h2>Team, Transfers and Table with Knockout</h2>
+
+<div class="viewContainer">
+    
+<!-- Views -->
+<ul class="views" data-bind="foreach: views">
+    <li data-bind="text: $data, 
+                   css: { selected: $data == $root.chosenViewId() },
+                   click: $root.goToView"></li>
+</ul>
+    
+    <!-- The Team View -->
+    <section class="view teamView">
+        <h3>Your team</h3>
+
+        
+        <button data-bind="command: saveCmd, activity: saveCmd.isExecuting">Save</button>
+       <button data-bind="command: cancelCmd, activity: cancelCmd.isExecuting">Cancel</button>
+
+        <ul class="team" data-bind="foreach: players">
+            <li>
+                <a href="#" data-bind="click: $root.chooseCaptain">
+                    <img data-bind="css: { manageIsCaptain: isCaptain() === true,
+                                            manageNotCaptain: isCaptain() === false }" 
+                         src="../../Images/Team/captain.png" 
+                         alt="set captain" title="set captain"/>
+                </a>
+                <span class="player" data-bind="text: name()"></span>
+            </li>
+        </ul>
+        
+        <div id="debugCmd"></div>
+    </section>
+
+    <!-- The Manage View -->
+    <section class="view manageView">
+        <h3>Manage your team</h3>
+
+@*
+         <button data-bind="jqButton: { enable: isItDirty() }, click: save">Save Changes</button>
+*@
+       <button data-bind="command: saveCmd, activity: saveCmd.isExecuting">Save</button>
+       <button data-bind="command: cancelCmd, activity: cancelCmd.isExecuting">Cancel</button>
+
+
+        <div id="xferPlayers">
+            <h4>1. Select a player from this list</h4>
+            <ol id="selectable" data-bind="foreach: playerList">
+                <li data-bind="click: $root.selectPlayerForXfer, css: { 'ui-selected': name() === $root.transferCandidate().name()}">   
+                    <span class="pname" data-bind="text: name"></span>
+                    <span data-bind="text: points"></span>
+                </li>   
+            </ol>
+
+         </div>  
+             
+        <div id="xferTeam">
+            <h4>2. Click the yellow button to transfer</h4>
+            <ul class="team" data-bind="foreach: players">
+                <li>
+                    <a href="#" data-bind="click: $root.transferPlayer">
+                        <img data-bind="css: { manageCanTransfer: $root.okToTransfer(),
+                                                manageNotTransfer: ! $root.okToTransfer() }"
+                            src="../../Images/Team/sub.png" 
+                            alt="transfer player" title="transfer player"/>
+                    </a>
+                    <a href="#" data-bind="click: $root.chooseCaptain">
+                        <img data-bind="css: { manageIsCaptain: isCaptain() === true,
+                                                manageNotCaptain: isCaptain() === false }" 
+                             src="../../Images/Team/captain.png" 
+                            alt="set captain" title="set captain"/>
+                    </a>
+                    <span class="player" data-bind="text: name()"></span>
+                    <span class="player" data-bind="text: isCaptain()"></span>
+                </li>
+            </ul>
+        </div>
+        
+    
+    </section>
+
+    <!-- The Leaderboard View -->
+    <section class="view leaderboardView">
+        <h3>Leaderboard</h3>
+        <table>
+            <thead><tr>
+                <th></th><th>#</th><th>Team Name</th><th>WP</th><th>TOT</th>
+            </tr></thead>
+            <tbody data-bind="foreach: leaderBoard">
+                <tr>
+                    <td data-bind="css: { trendUp: trend > 0, trendSame: trend === 0, trendDown: trend < 0}"></td>
+                    <td data-bind="text: position"></td>
+                    <td data-bind="text: teamName"></td>
+                    <td data-bind="text: weekPoints"></td>
+                    <td data-bind="text: totalPoints"></td>
+                </tr>    
+            </tbody>
+        </table>
+
+    </section>
+
+</div>

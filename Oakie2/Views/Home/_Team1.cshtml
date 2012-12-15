@@ -1,0 +1,494 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>@ViewBag.Title</title>
+        <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <meta name="viewport" content="width=device-width" />
+        @Styles.Render("~/Content/css")
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" />
+        <style>    
+ 
+            .viewContainer {
+                height: 500px;
+            }
+            .team {
+                list-style-type: none;
+            }
+            .player {
+                margin-left: 30px;
+            }
+
+            .isCaptain {
+                display: inline;
+                background-image: url(/Images/Team/captain.png);
+                background-repeat: no-repeat;
+            }
+
+            /* See http://learn.knockoutjs.com/#/?tutorial=webmail */
+            .views { 
+                background-color: #bbb; 
+                list-style-type: none; 
+                padding: 0; 
+                margin: 0; 
+                border-radius: 7px; 
+	            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #d6d6d6), color-stop(0.4, #c0c0c0), color-stop(1,#a4a4a4)); 
+	            margin: 10px 0 16px 0;
+	            font-size: 0px;
+               }
+            .views li:hover { background-color: #ddd; }    
+            .views li:first-child { border-left: none; border-radius: 7px 0 0 7px; }
+            .views li { font-size: 16px; font-weight: bold; display: inline-block; padding: 0.5em 1.5em; cursor: pointer; color: #444; text-shadow: #f7f7f7 0 1px 1px; border-left: 1px solid #ddd; border-right: 1px solid #888; }
+            .views li { *display: inline !important; } /* IE7 only */
+            .views .selected { background-color: #444 !important; color: white; text-shadow:none; border-right-color: #aaa; border-left: none; box-shadow:inset 1px 2px 6px #070707; }    
+
+            /* team view */
+            ul.team li a {
+                text-decoration: none;
+            }
+            ul.team li a:hover {
+                text-decoration: none;
+                background-color: transparent;
+            }
+
+            /* Manage view */
+            #xferPlayers {
+                border: 1px solid darkgray;
+                padding: 20px;
+                clear: left;
+                float: left;
+                
+            }
+            #xferTeam {
+                float: left;
+                border: 1px solid darkgray;
+                margin-left: 10px;
+                padding: 20px;
+            }
+
+            #xferPlayers .pname {
+                width: 100px;
+                display: inline-block;
+            }
+
+            .manageView button {
+                clear: left;
+                display: block;
+            }
+
+            .manageIsCaptain {
+                opacity: 1;
+            }
+
+            .manageNotCaptain {
+                opacity: 0.2;
+            }
+            .manageCanTransfer {
+                opacity: 1;
+            }
+
+            .manageNotTransfer {
+                opacity: 0.2;
+            }
+
+/*                #selectable .ui-selecting { background: #FECA40; }    
+                #selectable .ui-selected { background: #F39814; color: white; }   
+                #selectable li { margin: 3px; padding: 0.4em; font-size: 1em; height: 18px; }*/
+ 
+                #selectable {
+                     list-style-type: none; 
+                     margin: 0; 
+                     padding: 0;
+                }   
+                #selectable li:hover {
+                    background: lightpink;
+                } 
+                .ui-selected {
+                    background: #F39814; 
+                    color: white;
+                }
+
+            /* Leaderboard view */
+            .leaderboardView table td {
+                border: 1px solid white;
+                
+            }
+            .trendUp {
+                display: inline;
+                background-image: url(/Images/Team/up.png);
+                background-repeat: no-repeat;
+            }
+            .trendDown {
+                display: inline;
+                background-image: url(/Images/Team/down.png);
+                background-repeat: no-repeat;
+            }
+            .trendSame {
+                display: inline;
+                background-image: url(/Images/Team/same.png);
+                background-repeat: no-repeat;
+            }
+        </style>
+
+        @Scripts.Render("~/bundles/modernizr")
+    </head>
+    <body>
+        <header>
+            <div class="content-wrapper">
+                <div class="float-left">
+                    <p class="site-title">@Html.ActionLink("your logo here", "Index", "Home")</p>
+                </div>
+                <div class="float-right">
+                    <section id="login">
+                        @Html.Partial("_LoginPartial")
+                    </section>
+                    <nav>
+                        <ul id="menu">
+                            <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                            <li>@Html.ActionLink("About", "About", "Home")</li>
+                            <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </header>
+        <div id="body">
+            @RenderSection("featured", required: false)
+            <section class="content-wrapper main-content clear-fix">
+                @RenderBody()
+            </section>
+        </div>
+        <footer>
+            <div class="content-wrapper">
+                <div class="float-left">
+                    <p>&copy; @DateTime.Now.Year - My ASP.NET MVC Application</p>
+                </div>
+            </div>
+        </footer>
+
+        @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/ko")
+        @Scripts.Render("~/bundles/sammy")
+        @Scripts.Render("~/bundles/toastr")
+        @Scripts.Render("~/Scripts/require.js")
+
+        @RenderSection("scripts", required: false)
+        <script>
+            ko.bindingHandlers.jqButton = {
+                init: function (element) {
+                    $(element).button(); // Turns the element into a jQuery UI button
+                },
+                update: function (element, valueAccessor) {
+                    var currentValue = valueAccessor();
+                    // Here we just update the "disabled" state, but you could update other properties too
+                    $(element).button("option", "disabled", currentValue.enable === false);
+                }
+            };
+
+
+            var oakie = oakie || {};
+
+            oakie.TeamPosition = function (position, teamName, weekPoints, totalPoints, trend) {
+                var self = this;
+                self.position = position;
+                self.teamName = teamName;
+                self.weekPoints = weekPoints;
+                self.totalPoints = totalPoints;
+                self.trend = trend;
+            };
+
+            oakie.PlayerInfo = function(name, points, isCaptain) {
+                var self = this;
+                self.name = ko.observable(name);
+                self.points = points;
+                self.isCaptain = ko.observable(isCaptain);
+            };
+
+            // -----------------------------------------------------------------
+            // The view model
+            // -----------------------------------------------------------------
+            oakie.TeamViewModel = function () {
+                ////////////////////////////////////////////////////////
+                // Data
+                ////////////////////////////////////////////////////////
+                // views == areas of functionality
+                var views = ['Team', 'Manage', 'Leaderboard'],
+                    chosenViewId = ko.observable(),
+                    isItDirty = ko.observable(false),
+                    // Team
+                    players = ko.observableArray(oakie.JSONGetTeam()),
+                    // Table
+                    leaderBoard = oakie.JSONGetLeaderBoard(),
+                    // Manage
+                    playerList = oakie.JSONGetPlayerList(),
+                    transferCandidate = ko.observable(new oakie.PlayerInfo('', 0, false)),  // load with empty player
+                    okToTransfer = ko.observable(false),
+                    // Dirty flags
+                    dirtyFlag = new ko.DirtyFlag([players], false);
+
+                    ////////////////////////////////////////////////////////
+                    // Behaviours
+                    ////////////////////////////////////////////////////////
+                var refreshData = function () {
+                        // reset the data by refreshing from server
+                        players(oakie.JSONGetTeam());
+                        transferCandidate(new oakie.PlayerInfo('', 0, false));
+                        okToTransfer(false);
+                    },                    
+                    // Views
+                    goToView = function(view) {
+                        /*self.chosenViewId(view);*/
+                        location.hash = view;
+                    },
+                    // Team
+                        // none
+                   // Manage
+                    transferPlayer = function(player) {
+                        //alert('transfer player:' + player.name());
+                        if (transferCandidate()
+                            && transferCandidate().name()
+                            && transferCandidate().name() != '') {
+
+                            //alert('transfer candidate = ' + self.transferCandidate().name());
+                            var newPlayer = transferCandidate().name();
+
+                            // Check player not already in list
+                            for (var i = 0; i < players().length; i++) {
+                                if (players()[i].name() === newPlayer) {
+                                    alert('Dude! You have already got ' + newPlayer + ' in your team.');
+                                    return;
+                                }
+                            }
+
+                            // transfer player
+                            player.name(newPlayer);
+                            transferCandidate(new oakie.PlayerInfo('', 0, false));
+                            okToTransfer(false);
+                            isItDirty(true);
+                        }
+                        // var x = $("div#xferPlayers li.ui-selected");
+                        // alert(x.length);
+
+                    },
+                    chooseCaptain = function(player) {
+                        //alert('set captain to ' + player.name());
+                        for (var i = 0; i < players().length; i++) {
+                            if (players()[i].name() != player.name()) {
+                                players()[i].isCaptain(false);
+                            } else {
+                                players()[i].isCaptain(true);
+                            }
+                        }
+                        isItDirty(true);
+                    },
+                    selectPlayerForXfer = function(player) {
+                        //alert('you selected ' + player.name());
+                        //$("div#xferPlayers li").removeClass('ui-selected');
+                        //$(event.currentTarget).addClass('ui-selected');
+
+                        transferCandidate(player);
+
+                        okToTransfer(true);
+                        for (var i = 0; i < players().length; i++) {
+                            if (players()[i].name() === player.name()) {
+                                okToTransfer(false);
+                            }
+                        }
+                    },
+                    //////////////////////////////////////////
+                    // Functionality  - save, cancel, leave
+                    //////////////////////////////////////////
+                    canLeave = function() {
+                        return !dirtyFlag().isDirty();
+                    },
+                    cancelCmd = ko.asyncCommand({
+                        execute: function(complete) {
+                            $("#debugCmd").html('todo - cancel command');
+                            refreshData();
+                            dirtyFlag().reset();
+                            complete();
+                        },
+                        canExecute: function(isExecuting) {
+                            return !isExecuting && dirtyFlag().isDirty();
+                        }
+                    }),
+                    saveCmd = ko.asyncCommand({
+                        execute: function(complete) {
+                            $("#debugCmd").html('todo - save command');
+                            dirtyFlag().reset();
+                            complete();
+                        },
+                        canExecute: function(isExecuting) {
+                            return !isExecuting && dirtyFlag().isDirty();
+                        }
+                    }),
+                    save = function() {
+                        alert('To do');
+                        isItDirty(false);
+                    };
+
+                    return {
+                        //props
+                        views: views,
+                        chosenViewId: chosenViewId,
+                        leaderBoard: leaderBoard,
+                        players: players,
+                        playerList: playerList,
+                        transferCandidate: transferCandidate,
+                        okToTransfer: okToTransfer,
+                        // methods
+                        goToView: goToView,
+                        transferPlayer: transferPlayer,
+                        chooseCaptain: chooseCaptain,
+                        selectPlayerForXfer: selectPlayerForXfer,
+                        canLeave: canLeave,
+                        cancelCmd: cancelCmd,
+                        saveCmd: saveCmd,
+                        save: save
+                };
+
+            };
+
+            ////////////////////////////////////////////////////////
+            // Client-side routes    
+            ////////////////////////////////////////////////////////
+            oakie.Router = function(vm) {
+                var currentHash = '',
+                    isRedirecting = false,
+                    sammy = new Sammy.Application(function () {
+                        this.get('#:view', function () {
+
+                            vm.chosenViewId(this.params.view);
+
+                            // hide all views
+                            $('.view').hide();
+
+                            // show chosen view
+                            if (this.params.view === 'Team') {
+                                $('.teamView').fadeIn();
+                            } else if (this.params.view === 'Manage') {
+                                $('.manageView').fadeIn();
+                            } else if (this.params.view === 'Leaderboard') {
+                                $('.leaderboardView').fadeIn();
+                            }
+
+                        });
+                        this.get('', function() {
+                             this.app.runRoute('get', '#Team');
+                        }); // default view is Team
+                    }),
+                    
+                    registerBeforeLeaving = function() {
+                        sammy.before(/.*/, function () {
+                            var
+                                context = this,
+                                response = vm.canLeave();
+
+                            if (!isRedirecting && !response) {
+                                isRedirecting = true;
+                                toastr.warning('Please save or cancel your changes before continuing.');
+                                // Keep hash url the same in address bar
+                                context.app.setLocation(currentHash);
+                            }
+                            else {
+                                isRedirecting = false;
+                                currentHash = context.app.getLocation();
+                            }
+                            // Cancel the route if this returns false
+                            return response; //response.val;
+                        });
+                    },
+                    
+                    run = function () {
+                        sammy.run();
+                        registerBeforeLeaving();
+                    };
+                
+                    return {
+                        run: run
+                    };
+            };
+            
+            
+            oakie.JSONGetTeam = function () {
+                // todo get from api
+                return [
+                    new oakie.PlayerInfo('Joe', 1, false),
+                    new oakie.PlayerInfo('Mark', 1, true),
+                    new oakie.PlayerInfo('Phil', 1, false),
+                    new oakie.PlayerInfo('Pete', 1, false)
+                ];
+            };
+
+            oakie.JSONGetLeaderBoard = function () {
+                return [
+                    new oakie.TeamPosition( 1, "team 1", 12, 48, 0),
+                    new oakie.TeamPosition( 2, "team 2", 7, 46, 0),
+                    new oakie.TeamPosition( 3, "team 3", 22, 39, 1),
+                    new oakie.TeamPosition( 4, "team 4", 4, 38, -1),
+                    new oakie.TeamPosition( 5, "team 5", 4, 35, 1),
+                    new oakie.TeamPosition( 6, "team 6", 6, 27, 1),
+                    new oakie.TeamPosition( 7, "team 7", 12, 26, -1),
+                    new oakie.TeamPosition( 8, "team 8", 10, 25, -1),
+                    new oakie.TeamPosition( 9, "team 9", 9, 19, 0),
+                    new oakie.TeamPosition( 10, "team 10", 2, 18, -1)
+                ];
+            };
+
+            oakie.JSONGetPlayerList = function () {
+
+                $.ajax({
+                    url: '/api/players',
+                    dataType: 'json',
+                    success: function (result) {
+                        debugger;
+                        alert('dude, your data has arrived');
+                    },
+                    error: function(result) {
+                        alert('dude, we fucked up. Sorry.');
+
+                    }
+                });
+
+                return [
+                    new oakie.PlayerInfo('Joe', 1),
+                    new oakie.PlayerInfo('Mark', 45),
+                    new oakie.PlayerInfo('Phil', 5),
+                    new oakie.PlayerInfo('Pete', 34),
+                    new oakie.PlayerInfo('Dave', 12),
+                    new oakie.PlayerInfo('Eric', 12),
+                    new oakie.PlayerInfo('Ivan', 17),
+                    new oakie.PlayerInfo('Paul', 10),
+                    new oakie.PlayerInfo('Tom', 8),
+                    new oakie.PlayerInfo('Brian', 18),
+                    new oakie.PlayerInfo('John', 9),
+                    new oakie.PlayerInfo('Chris', 23),
+                    new oakie.PlayerInfo('Jason', 11),
+                    new oakie.PlayerInfo('Bert', 13),
+                    new oakie.PlayerInfo('Arthur', 31),
+                    new oakie.PlayerInfo('Rick', 12),
+                    new oakie.PlayerInfo('Mart', 8),
+                    new oakie.PlayerInfo('Gaz', 5),
+                    new oakie.PlayerInfo('Jack', 2),
+                    new oakie.PlayerInfo('Al', 16),
+                    new oakie.PlayerInfo('Jimmy', 19)
+                ];
+            };
+            
+            // Jquery Ready
+            $(function () {
+                var vm = new oakie.TeamViewModel();
+                ko.applyBindings(vm);
+
+                var router = oakie.Router(vm);
+                router.run();
+                
+            });
+
+
+        </script>
+
+    </body>
+</html>
+

@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>@ViewBag.Title - My ASP.NET MVC Application</title>
+        <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <meta name="viewport" content="width=device-width" />
+        @Styles.Render("~/Content/css")
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" />
+        <style>    
+          .drop-hover {
+                border: solid 1px green;
+                cursor: copy;
+                opacity: 0.5;
+            }
+
+            .team {
+                width: 200px; height: 100px; padding: 0.5em; float: left; margin: 10px 10px 10px 0;
+            }
+
+            div.team li{
+                padding: 15px;
+            }
+            div.availablePlayers li{
+                padding: 10px;
+            }
+
+            .captain {
+                background-color: pink;  
+            }
+
+            .availablePlayers {
+                width: 200px; height: 300px; padding: 0.5em; float: left; margin: 10px;
+            }
+
+            .teamPlayer {
+                padding: 5px;
+            }
+
+            .player {
+                padding: 5px;
+            }
+
+            #teamSelect {
+                border: pink 1px solid;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+
+        @Scripts.Render("~/bundles/modernizr")
+    </head>
+    <body>
+        <header>
+            <div class="content-wrapper">
+                <div class="float-left">
+                    <p class="site-title">@Html.ActionLink("your logo here", "Index", "Home")</p>
+                </div>
+                <div class="float-right">
+                    <section id="login">
+                        @Html.Partial("_LoginPartial")
+                    </section>
+                    <nav>
+                        <ul id="menu">
+                            <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                            <li>@Html.ActionLink("About", "About", "Home")</li>
+                            <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </header>
+        <div id="body">
+            @RenderSection("featured", required: false)
+            <section class="content-wrapper main-content clear-fix">
+                @RenderBody()
+            </section>
+        </div>
+        <footer>
+            <div class="content-wrapper">
+                <div class="float-left">
+                    <p>&copy; @DateTime.Now.Year - My ASP.NET MVC Application</p>
+                </div>
+            </div>
+        </footer>
+
+        @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/ko")
+        @RenderSection("scripts", required: false)
+        <script>
+
+
+            $(function () {
+
+
+                
+
+                //testing Knockout
+                function Player(name) {
+                    var self = this;
+                    self.name = ko.observable(name);
+                }
+                
+                function TeamViewModel() {
+                    var self = this;
+
+                    self.captain = ko.observable("tom");
+                    
+                    self.teamPlayers = ko.observableArray([
+                         new Player("tom"),
+                         new Player("dick"),
+                        new Player("wayne")
+                    ]);
+
+                    self.availablePlayers = ko.observableArray([
+                         new Player("joe"),
+                         new Player("jim"),
+                        new Player("harry"),
+                        new Player("john")
+                    ]);
+
+                    self.transfer = function(inp, outp) {
+                        //self.seats.push(new SeatReservation("", self.availableMeals[0]));
+                        //y.splice( $.inArray(removeItem, y), 1 );
+                        self.teamPlayers.splice($.inArray(outp, self.teamPlayers), 1);
+                        self.teamPlayers.push(inp);
+                    };
+
+                }
+
+                // Activates knockout.js
+                ko.applyBindings(new TeamViewModel());
+
+                // drag n drop stuff
+
+                $(".player").css('cursor', 'move');
+                $(".player").hover(function () {
+                    $("#dragInstructions").html("Just click and drag to transfer");
+                },
+                function () {
+                    $("#dragInstructions").html("");
+                });
+
+                $(".player").draggable({
+                    /* containment: "#teamSelect",  -- didnt work in ff */
+                    helper: "clone",
+                    cursor: "move",
+                    revert: "invalid"
+                    //stop: function (event, ui) { alert('stop event'); }
+                });
+
+                $(".teamPlayer").droppable(
+                    {
+                        //hover:,
+                        drop: function (event, ui) {
+                            var transferOut = $(this).text();
+                            var transferIn = ui.draggable.text();
+                            
+                            var msg = "Replace [" + transferOut + "] with [" + transferIn + "]";
+                            alert(msg);
+
+                            TeamViewModel().transfer(transferIn, transferOut);
+
+                            // Update team
+                            var player = $(this).text();
+                            $(this).text(ui.draggable.text());
+                            //$(this).addClass("ui-state-highlight").find("p").html("Dropped!");
+
+                            // Now update list of players
+                            //var test = $(".allPlayers .player:contains('fred')");
+                            //html.js body div#body section.content-wrapper div#teamSelect div.allPlayers div.player
+                            //alert(test.length);
+                            $(".availablePlayers .player:contains('" + transferIn + "')").text(transferOut);
+                        }
+                    });
+
+                $(".teamPlayer").droppable({ accept: ".player" });
+                $(".teamPlayer").droppable({ activeClass: "ui-state-highlight" });
+                $(".teamPlayer").droppable({ hoverClass: "drop-hover" });
+                
+
+
+            });
+
+
+        </script>
+    </body>
+</html>
+

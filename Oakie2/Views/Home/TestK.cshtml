@@ -1,0 +1,47 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "title";
+    Layout = "~/Views/Home/_TeamK.cshtml";
+}
+
+
+<h2>Team and Transfers with Knockout</h2>
+
+<div id="teamSelect">
+    <div class="team">
+        <h3>Your team</h3>
+        <ul data-bind="foreach: teamPlayers">
+            <li>
+                <span class="teamPlayer" data-bind="text: name"></span>
+            </li>
+        </ul>
+    </div>
+
+
+    <div class="availablePlayers ">
+        <h3>Available players</h3>
+         <ul data-bind="foreach: availablePlayers">
+             <li>
+                 <span class="player ui-widget-content" data-bind="text: name"></span>
+             </li>
+        </ul>
+
+        <div id="dragInstructions"></div>
+    </div>
+</div>
+
+<div style="clear: left"></div>
+Captain:
+<select data-bind="options: teamPlayers, value: captain, optionsText: 'name'">
+    
+</select>
+
+<div >
+    Debug team:
+    <ul data-bind="foreach: teamPlayers">
+        <li>
+            <span data-bind="text: name"></span>
+        </li>
+    </ul>
+</div >

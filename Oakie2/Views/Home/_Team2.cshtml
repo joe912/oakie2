@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>@ViewBag.Title</title>
+        <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <meta name="viewport" content="width=device-width" />
+        @Styles.Render("~/Content/css")
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" />
+        <style>    
+ 
+            .viewContainer {
+                height: 500px;
+            }
+            .team {
+                list-style-type: none;
+            }
+            .player {
+                margin-left: 30px;
+            }
+
+            .isCaptain {
+                display: inline;
+                background-image: url(/Images/Team/captain.png);
+                background-repeat: no-repeat;
+            }
+
+            /* See http://learn.knockoutjs.com/#/?tutorial=webmail */
+            .views { 
+                background-color: #bbb; 
+                list-style-type: none; 
+                padding: 0; 
+                margin: 0; 
+                border-radius: 7px; 
+	            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #d6d6d6), color-stop(0.4, #c0c0c0), color-stop(1,#a4a4a4)); 
+	            margin: 10px 0 16px 0;
+	            font-size: 0px;
+               }
+            .views li:hover { background-color: #ddd; }    
+            .views li:first-child { border-left: none; border-radius: 7px 0 0 7px; }
+            .views li { font-size: 16px; font-weight: bold; display: inline-block; padding: 0.5em 1.5em; cursor: pointer; color: #444; text-shadow: #f7f7f7 0 1px 1px; border-left: 1px solid #ddd; border-right: 1px solid #888; }
+            .views li { *display: inline !important; } /* IE7 only */
+            .views .selected { background-color: #444 !important; color: white; text-shadow:none; border-right-color: #aaa; border-left: none; box-shadow:inset 1px 2px 6px #070707; }    
+
+            /* team view */
+            ul.team li a {
+                text-decoration: none;
+            }
+            ul.team li a:hover {
+                text-decoration: none;
+                background-color: transparent;
+            }
+
+            /* Manage view */
+            #xferPlayers {
+                border: 1px solid darkgray;
+                padding: 20px;
+                clear: left;
+                float: left;
+                
+            }
+            #xferTeam {
+                float: left;
+                border: 1px solid darkgray;
+                margin-left: 10px;
+                padding: 20px;
+            }
+
+            #xferPlayers .pname {
+                width: 100px;
+                display: inline-block;
+            }
+
+            .manageView button {
+                clear: left;
+                display: block;
+            }
+
+            .manageIsCaptain {
+                opacity: 1;
+            }
+
+            .manageNotCaptain {
+                opacity: 0.2;
+            }
+            .manageCanTransfer {
+                opacity: 1;
+            }
+
+            .manageNotTransfer {
+                opacity: 0.2;
+            }
+
+/*                #selectable .ui-selecting { background: #FECA40; }    
+                #selectable .ui-selected { background: #F39814; color: white; }   
+                #selectable li { margin: 3px; padding: 0.4em; font-size: 1em; height: 18px; }*/
+ 
+                #selectable {
+                     list-style-type: none; 
+                     margin: 0; 
+                     padding: 0;
+                }   
+                #selectable li:hover {
+                    background: lightpink;
+                } 
+                .ui-selected {
+                    background: #F39814; 
+                    color: white;
+                }
+
+            /* Leaderboard view */
+            .leaderboardView table td {
+                border: 1px solid white;
+                
+            }
+            .trendUp {
+                display: inline;
+                background-image: url(/Images/Team/up.png);
+                background-repeat: no-repeat;
+            }
+            .trendDown {
+                display: inline;
+                background-image: url(/Images/Team/down.png);
+                background-repeat: no-repeat;
+            }
+            .trendSame {
+                display: inline;
+                background-image: url(/Images/Team/same.png);
+                background-repeat: no-repeat;
+            }
+        </style>
+
+        @Scripts.Render("~/bundles/modernizr")
+    </head>
+    <body>
+        <header>
+            <div class="content-wrapper">
+                <div class="float-left">
+                    <p class="site-title">@Html.ActionLink("your logo here", "Index", "Home")</p>
+                </div>
+                <div class="float-right">
+                    <section id="login">
+                        @Html.Partial("_LoginPartial")
+                    </section>
+                    <nav>
+                        <ul id="menu">
+                            <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                            <li>@Html.ActionLink("About", "About", "Home")</li>
+                            <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </header>
+        <div id="body">
+            @RenderSection("featured", required: false)
+            <section class="content-wrapper main-content clear-fix">
+                @RenderBody()
+            </section>
+        </div>
+        <footer>
+            <div class="content-wrapper">
+                <div class="float-left">
+                    <p>&copy; @DateTime.Now.Year - My ASP.NET MVC Application</p>
+                </div>
+            </div>
+        </footer>
+
+        @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/ko")
+        @Scripts.Render("~/bundles/sammy")
+        @Scripts.Render("~/bundles/toastr")
+        @Scripts.Render("~/bundles/amplify")
+        @Scripts.Render("~/Scripts/require.js")
+
+        @Scripts.Render("~/Scripts/app/bootstrapper.js") 
+
+        @RenderSection("scripts", required: false)
+        <script>
+            //var oakie = oakie || {};  // now defined in bootstrapper
+
+/*            ko.bindingHandlers.jqButton = {
+                init: function (element) {
+                    $(element).button(); // Turns the element into a jQuery UI button
+                },
+                update: function (element, valueAccessor) {
+                    var currentValue = valueAccessor();
+                    // Here we just update the "disabled" state, but you could update other properties too
+                    $(element).button("option", "disabled", currentValue.enable === false);
+                }
+            };*/
+        </script>
+        @Scripts.Render("~/Scripts/app/oakie.models.js") 
+        @Scripts.Render("~/Scripts/app/oakie.duff.js") 
+        @Scripts.Render("~/Scripts/app/oakie.viewmodel.js") 
+        @Scripts.Render("~/Scripts/app/oakie.router.js") 
+
+        @Scripts.Render("~/Scripts/app/main.js")
+
+    </body>
+</html>
+
