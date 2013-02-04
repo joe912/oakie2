@@ -11,7 +11,7 @@
         define('jquery', [], function () { return root.jQuery; });
         define('ko', [], function () { return root.ko; });
 
-        alert('define amplify');
+        alert('define amplify git test');
         define('amplify', [], function () { return root.amplify; });
         alert('defined amplify');
         /*        define('infuser', [], function () { return root.infuser; });
